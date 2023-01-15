@@ -2,10 +2,6 @@ import sys
 from collections import deque
 
 
-def get_item(x, y, h):
-    return box[h][y][x]
-
-
 def bfs():
     q = deque(ones)
     zeros_left = zeros_cnt + ones_cnt
