@@ -4,8 +4,7 @@ import sys
 def find(x: int):
     if x == parent[x]:
         return x
-    while x != parent[x]:
-
+    parent[x] = find(parent[x])
     return parent[x]
 
 
