@@ -15,6 +15,8 @@ for i in range(P):
 
 dx = [1, -1, 0, 0]
 dy = [0, 0, 1, -1]
+intMax = 2 ** 31 - 1
+intMin = - 2**31
 
 
 def move(cur: int, dist: int, l: int):
@@ -35,27 +37,58 @@ def move(cur: int, dist: int, l: int):
 
 for q in range(1, Q - 1):
     commands = list(map(int, sys.stdin.readline().split()))
+    # print(score)
 
     if commands[0] == 200:
         K, S = commands[1], commands[2]
-        picked_id = set()
+        picked_score = {}
+        picked_info = {}
+        tot_k_score = 0
 
         for k in range(K):
             acc, _, t_x, t_y, t_id = heappop(rhq)
-            picked_id.add(t_id)
             t_dist = dist[t_id]
             n_poses = []
             for n_x in move(t_x, t_dist, N):
-                heappush(n_poses, (n_x + t_y, n_x, t_y))
+                heappush(n_poses, (-n_x - t_y, -n_x, -t_y))
             for n_y in move(t_y, t_dist, M):
-                heappush(n_poses, (t_x + n_y, t_x, n_y))
+                heappush(n_poses, (-t_x - n_y, -t_x, -n_y))
             _, f_x, f_y = heappop(n_poses)
-            heappush(rhq, (acc + 1, f_x + f_y, f_x, f_y, t_id))
+            f_x, f_y = -f_x, -f_y
+            # print('k', k, t_id, 'f_x', 'f_y', f_x, f_y, f_x + f_y + 2)
+            t_score = f_x + f_y + 2
+            tot_k_score += t_score
+            picked_info[t_id] = (t_score, f_x, f_y)
+            if t_id not in picked_score:
+                picked_score[t_id] = t_score
+            else:
+                picked_score[t_id] += t_score
+            heappush(rhq, (acc + 1, t_score, f_x, f_y, t_id))
+            # print('k round', k, picked_score, tot_k_score)
 
-            for key in score:
-                if key == t_id:
-                    continue
-                score[key] += f_x + f_y
+        for key in score:
+            if key in picked_score:
+                score[key] += tot_k_score - picked_score[key]
+            else:
+                score[key] += tot_k_score
 
+        best_key = None
+        best_value = (intMin, intMin, intMin)
+        for key in picked_info:
+            if not best_key or picked_info[key] > best_value:
+                best_value = picked_info[key]
+                best_key = key
+        score[best_key] += S
 
+    elif commands[0] == 300:
+        pid, L = commands[1], commands[2]
+        dist[pid] *= L
 
+# print(score)
+best_key = None
+best_score = intMin
+for key in score:
+    if not best_key or best_score < score[key]:
+        best_score = score[key]
+        best_key = key
+print(best_score)
