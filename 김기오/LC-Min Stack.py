@@ -40,7 +40,8 @@ class MinStack:
         else:
             return None
         
-
+# There is true O(1) Solution.
+# make minStack instead of hq.
 
 # Your MinStack object will be instantiated and called as such:
 # obj = MinStack()
